@@ -16,6 +16,28 @@ setInterval(() => {
     numberOfRequestsForUser = {};
 }, 1000)
 
+app.use(function rateLimitter(req, res, next){
+  const userId = req.headers["user-id"];
+  // let numberOfRequestsForUser[userId] = numberOfRequestsForUser["user-id"];
+  console.log("userId:", userId, "numberOfRequestsForUser[userId]:",numberOfRequestsForUser[userId])
+  if(numberOfRequestsForUser[userId]){
+    numberOfRequestsForUser[userId]++;
+
+    if(numberOfRequestsForUser[userId] > 5){
+      res.status(404).json({
+        msg:"Too many requests. Please try again after 1 second"
+      })
+    }
+    else{
+      next();
+    }
+
+  }else{
+    numberOfRequestsForUser[userId] = 1;
+    next();
+  }
+})
+
 app.get('/user', function(req, res) {
   res.status(200).json({ name: 'john' });
 });
@@ -25,3 +47,4 @@ app.post('/user', function(req, res) {
 });
 
 module.exports = app;
+app.listen(3000)
