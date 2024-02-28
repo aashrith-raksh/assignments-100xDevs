@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const z = require('zod');
 const jwtPassword = 'secret';
 
 
@@ -15,7 +16,32 @@ const jwtPassword = 'secret';
  */
 function signJwt(username, password) {
     // Your code here
+    const usernameSchema = z.string().email();
+    const passwordSchema = z.string().min(6);
+    try{
+        passwordSchema.parse(password);
+    }catch(e){
+        console.log("Invalid password")
+        return null;
+    }
+    try{
+        usernameSchema.parse(username);
+    }catch(e){
+        console.log("Invalid email")
+        return null;
+    }
+
+    console.log('Logged In');
+    const jwtToken = jwt.sign({
+        username: username,
+        password: password
+    },jwtPassword)
+    console.log("here's your token: " + jwtToken)
+    return jwtToken;
+
 }
+
+signJwt("sdf@gmail.com", "sddsfsdfsdf")
 
 /**
  * Verifies a JWT using a secret key.
